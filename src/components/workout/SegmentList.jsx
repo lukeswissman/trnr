@@ -36,14 +36,17 @@ export function SegmentList({ segments, onChange }) {
             Add segments to build your workout
           </p>
         ) : (
-          segments.map((segment, index) => (
-            <SegmentEditor
-              key={segment.id}
-              segment={segment}
-              onChange={(updated) => updateSegment(index, updated)}
-              onDelete={() => deleteSegment(index)}
-            />
-          ))
+          [...segments].reverse().map((segment, reversedIndex) => {
+            const originalIndex = segments.length - 1 - reversedIndex;
+            return (
+              <SegmentEditor
+                key={segment.id}
+                segment={segment}
+                onChange={(updated) => updateSegment(originalIndex, updated)}
+                onDelete={() => deleteSegment(originalIndex)}
+              />
+            );
+          })
         )}
       </div>
 
