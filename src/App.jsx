@@ -37,7 +37,7 @@ function Dashboard({ onGoToWorkouts }) {
       {/* Header */}
       <header className="p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-gray-700">
         <div className="flex items-center gap-4">
-          <h1 className="text-xl font-bold">trnr</h1>
+          <h1 className="text-xl font-bold">Trnr - train, eat, sleep, n repeat!</h1>
           <DeviceList />
         </div>
         <div className="flex items-center gap-2">
@@ -94,6 +94,12 @@ function Dashboard({ onGoToWorkouts }) {
           value={liveData.distance}
           unit="km"
           formatter={formatDistance}
+        />
+        <MetricDisplay
+          label="Heart Rate"
+          value={liveData.heartRate}
+          unit="bpm"
+          formatter={(v) => Math.round(v)}
         />
       </main>
     </div>

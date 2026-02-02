@@ -1,5 +1,6 @@
 import { useWorkout } from '../../hooks/useWorkout.js';
 import { useBluetooth } from '../../hooks/useBluetooth.js';
+import { MetricDisplay } from '../MetricDisplay.jsx';
 import { TargetDisplay } from './TargetDisplay.jsx';
 import { WorkoutProgress } from './WorkoutProgress.jsx';
 import { PlayerControls } from './PlayerControls.jsx';
@@ -50,6 +51,15 @@ export function WorkoutPlayer({ onClose }) {
       {/* Main display */}
       <div className="flex-1 flex flex-col items-center justify-center gap-8">
         <TargetDisplay targetPower={targetPower} actualPower={liveData.power} />
+
+        {liveData.heartRate != null && (
+          <MetricDisplay
+            label="Heart Rate"
+            value={liveData.heartRate}
+            unit="bpm"
+            formatter={(v) => Math.round(v)}
+          />
+        )}
 
         <div className="w-full max-w-md">
           <WorkoutProgress elapsed={elapsed} totalDuration={totalDuration} />

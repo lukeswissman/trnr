@@ -1,5 +1,5 @@
 import { createContext, useCallback, useState, useRef } from 'react';
-import { requestDevice, subscribeToIndoorBikeData, disconnectDevice, setupTrainerControl, setTargetPower } from '../services/bluetooth/index.js';
+import { requestDevice, requestHRDevice, subscribeToIndoorBikeData, subscribeToHeartRate, disconnectDevice, setupTrainerControl, setTargetPower } from '../services/bluetooth/index.js';
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const BluetoothContext = createContext(null);
@@ -76,6 +76,53 @@ export function BluetoothProvider({ children }) {
     }
   }, []);
 
+  const connectHRDevice = useCallback(async () => {
+    setIsConnecting(true);
+    setError(null);
+
+    try {
+      const { device, server } = await requestHRDevice();
+
+      // Subscribe to heart rate data
+      const characteristic = await subscribeToHeartRate(server, (data) => {
+        setLiveData((prev) => ({
+          ...prev,
+          heartRate: data.heartRate,
+        }));
+      });
+
+      // Store characteristic for cleanup
+      characteristicsRef.current.set(device.id, characteristic);
+
+      // Handle disconnection
+      device.addEventListener('gattserverdisconnected', () => {
+        setDevices((prev) => {
+          const next = new Map(prev);
+          next.delete(device.id);
+          return next;
+        });
+        characteristicsRef.current.delete(device.id);
+        setLiveData((prev) => ({ ...prev, heartRate: null }));
+      });
+
+      // Store device
+      setDevices((prev) => {
+        const next = new Map(prev);
+        next.set(device.id, { device, server });
+        return next;
+      });
+
+      return device;
+    } catch (err) {
+      if (err.name !== 'NotFoundError') {
+        setError(err.message);
+      }
+      return null;
+    } finally {
+      setIsConnecting(false);
+    }
+  }, []);
+
   const disconnect = useCallback((deviceId) => {
     const entry = devices.get(deviceId);
     if (entry) {
@@ -122,6 +169,7 @@ export function BluetoothProvider({ children }) {
     isConnecting,
     error,
     connectDevice,
+    connectHRDevice,
     disconnect,
     disconnectAll,
     hasTrainerControl,
