@@ -15,7 +15,7 @@ import { WorkoutBuilder } from './components/workout/WorkoutBuilder.jsx';
 import { WorkoutPlayer } from './components/workout/WorkoutPlayer.jsx';
 import { calculateSpeed } from './utils/speedCalculator.js';
 
-function Dashboard({ onGoToWorkouts }) {
+function HardwareTest({ onBack }) {
   const { liveData, error } = useBluetooth();
   const { totalWeight } = useSettings();
   const [showSettings, setShowSettings] = useState(false);
@@ -37,16 +37,16 @@ function Dashboard({ onGoToWorkouts }) {
       {/* Header */}
       <header className="p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-gray-700">
         <div className="flex items-center gap-4">
-          <h1 className="text-xl font-bold">Trnr - train, eat, sleep, n repeat!</h1>
+          <button
+            onClick={onBack}
+            className="text-gray-400 hover:text-white"
+          >
+            ← Back
+          </button>
+          <h1 className="text-xl font-bold">Hardware Setup n Test</h1>
           <DeviceList />
         </div>
         <div className="flex items-center gap-2">
-          <button
-            onClick={onGoToWorkouts}
-            className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm"
-          >
-            Workouts
-          </button>
           <SettingsButton onClick={() => setShowSettings(true)} />
           <ConnectButton />
         </div>
@@ -237,8 +237,43 @@ function StartWorkoutModal({ workout, onStart, onCancel }) {
   );
 }
 
+function StartScreen({ onGoToWorkouts, onGoToHardware }) {
+  const [showSettings, setShowSettings] = useState(false);
+
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center relative">
+      <div className="absolute top-4 right-4">
+        <SettingsButton onClick={() => setShowSettings(true)} />
+      </div>
+
+      {showSettings && (
+        <SettingsModal onClose={() => setShowSettings(false)} />
+      )}
+
+      <h1 className="text-3xl font-bold mb-8">Trnr - train, eat, sleep, n repeat!</h1>
+
+      <div className="bg-gray-800 rounded-lg p-6 max-w-sm w-full mx-4">
+        <div className="space-y-3">
+          <button
+            onClick={onGoToWorkouts}
+            className="w-full px-4 py-4 bg-blue-600 hover:bg-blue-700 rounded-lg text-lg font-semibold"
+          >
+            Workouts
+          </button>
+          <button
+            onClick={onGoToHardware}
+            className="w-full px-4 py-4 bg-gray-700 hover:bg-gray-600 rounded-lg text-lg font-semibold"
+          >
+            Hardware Setup n Test
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function AppContent() {
-  const [view, setView] = useState('dashboard'); // 'dashboard' | 'workouts' | 'player'
+  const [view, setView] = useState('start'); // 'start' | 'hardware' | 'workouts' | 'player'
   const [workoutToStart, setWorkoutToStart] = useState(null);
   const { startWorkout, setOnTargetPowerChange } = useWorkout();
   const { sendTargetPower, hasTrainerControl } = useBluetooth();
@@ -270,12 +305,18 @@ function AppContent() {
 
   return (
     <>
-      {view === 'dashboard' && (
-        <Dashboard onGoToWorkouts={() => setView('workouts')} />
+      {view === 'start' && (
+        <StartScreen
+          onGoToWorkouts={() => setView('workouts')}
+          onGoToHardware={() => setView('hardware')}
+        />
+      )}
+      {view === 'hardware' && (
+        <HardwareTest onBack={() => setView('start')} />
       )}
       {view === 'workouts' && (
         <WorkoutsView
-          onBack={() => setView('dashboard')}
+          onBack={() => setView('start')}
           onStartWorkout={handleStartWorkout}
         />
       )}
