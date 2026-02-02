@@ -10,7 +10,9 @@ export function getWorkoutsFromStorage() {
     if (!data) {
       return [];
     }
-    return JSON.parse(data);
+    const workouts = JSON.parse(data);
+    workouts.sort((a, b) => (b.updatedAt || b.createdAt || 0) - (a.updatedAt || a.createdAt || 0));
+    return workouts;
   } catch {
     console.error('Failed to parse workouts from localStorage');
     return [];
