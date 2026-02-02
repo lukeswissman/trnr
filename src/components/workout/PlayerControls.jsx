@@ -3,6 +3,8 @@ export function PlayerControls({
   onPause,
   onResume,
   onStop,
+  onSave,
+  hasSaveData,
 }) {
   return (
     <div className="flex justify-center gap-4">
@@ -30,6 +32,15 @@ export function PlayerControls({
           className="px-6 py-3 bg-red-600 hover:bg-red-700 rounded-lg text-lg font-medium"
         >
           Stop
+        </button>
+      )}
+
+      {status === 'completed' && hasSaveData && (
+        <button
+          onClick={onSave}
+          className="px-6 py-3 bg-green-600 hover:bg-green-700 rounded-lg text-lg font-medium"
+        >
+          Save .FIT
         </button>
       )}
 

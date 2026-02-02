@@ -1,5 +1,7 @@
 import { useWorkout } from '../../hooks/useWorkout.js';
 import { useBluetooth } from '../../hooks/useBluetooth.js';
+import { useRecorder } from '../../hooks/useRecorder.js';
+import { exportRecording } from '../../services/export/index.js';
 import { MetricDisplay } from '../MetricDisplay.jsx';
 import { TargetDisplay } from './TargetDisplay.jsx';
 import { WorkoutProgress } from './WorkoutProgress.jsx';
@@ -16,12 +18,35 @@ export function WorkoutPlayer({ onClose }) {
     targetPower,
     pauseWorkout,
     resumeWorkout,
+    completeWorkout,
     stopWorkout,
   } = useWorkout();
 
   const { liveData } = useBluetooth();
 
+  const { recording } = useRecorder({
+    executionStatus,
+    elapsed,
+    liveData,
+    activeWorkout,
+  });
+
   const handleStop = () => {
+    if (executionStatus === 'running' || executionStatus === 'paused') {
+      completeWorkout();
+    } else {
+      stopWorkout();
+      onClose?.();
+    }
+  };
+
+  const handleSave = () => {
+    if (recording) {
+      exportRecording(recording);
+    }
+  };
+
+  const handleDone = () => {
     stopWorkout();
     onClose?.();
   };
@@ -69,7 +94,9 @@ export function WorkoutPlayer({ onClose }) {
           status={executionStatus}
           onPause={pauseWorkout}
           onResume={resumeWorkout}
-          onStop={handleStop}
+          onStop={executionStatus === 'completed' ? handleDone : handleStop}
+          onSave={handleSave}
+          hasSaveData={recording != null}
         />
       </div>
     </div>

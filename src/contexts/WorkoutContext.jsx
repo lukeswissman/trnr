@@ -146,6 +146,14 @@ export function WorkoutProvider({ children }) {
     }
   }, [executionStatus]);
 
+  const completeWorkout = useCallback(() => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    setExecutionStatus('completed');
+  }, []);
+
   const stopWorkout = useCallback(() => {
     setExecutionStatus('idle');
     setActiveWorkout(null);
@@ -190,6 +198,7 @@ export function WorkoutProvider({ children }) {
     startWorkout,
     pauseWorkout,
     resumeWorkout,
+    completeWorkout,
     stopWorkout,
     setOnTargetPowerChange,
     setExecutionMode,
