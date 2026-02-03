@@ -8,14 +8,12 @@ import { WorkoutProgress } from './WorkoutProgress';
 import { PlayerControls } from './PlayerControls';
 import { WorkoutChart } from './WorkoutChart';
 import { WorkoutSummary } from './WorkoutSummary';
-import { useState, useEffect } from 'react';
 
 interface WorkoutPlayerProps {
   onClose?: () => void;
 }
 
 export function WorkoutPlayer({ onClose }: WorkoutPlayerProps) {
-  const [showSummary, setShowSummary] = useState(false);
   const {
     activeWorkout,
     executionStatus,
@@ -38,11 +36,7 @@ export function WorkoutPlayer({ onClose }: WorkoutPlayerProps) {
     activeWorkout,
   });
 
-  useEffect(() => {
-    if (executionStatus === 'completed' && recording) {
-      setShowSummary(true);
-    }
-  }, [executionStatus, recording]);
+  const showSummary = executionStatus === 'completed' && recording != null;
 
   const handleStop = () => {
     if (executionStatus === 'running' || executionStatus === 'paused') {
