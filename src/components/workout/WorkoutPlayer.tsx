@@ -1,18 +1,21 @@
 import { useWorkout } from '../../hooks/useWorkout';
 import { useBluetooth } from '../../hooks/useBluetooth';
 import { useRecorder } from '../../hooks/useRecorder';
-import { exportRecording } from '../../services/export';
+import { exportRecording, exportAndUploadToStrava } from '../../services/export';
 import { MetricDisplay } from '../MetricDisplay';
 import { TargetDisplay } from './TargetDisplay';
 import { WorkoutProgress } from './WorkoutProgress';
 import { PlayerControls } from './PlayerControls';
 import { WorkoutChart } from './WorkoutChart';
+import { WorkoutSummary } from './WorkoutSummary';
+import { useState, useEffect } from 'react';
 
 interface WorkoutPlayerProps {
   onClose?: () => void;
 }
 
 export function WorkoutPlayer({ onClose }: WorkoutPlayerProps) {
+  const [showSummary, setShowSummary] = useState(false);
   const {
     activeWorkout,
     executionStatus,
@@ -35,6 +38,12 @@ export function WorkoutPlayer({ onClose }: WorkoutPlayerProps) {
     activeWorkout,
   });
 
+  useEffect(() => {
+    if (executionStatus === 'completed' && recording) {
+      setShowSummary(true);
+    }
+  }, [executionStatus, recording]);
+
   const handleStop = () => {
     if (executionStatus === 'running' || executionStatus === 'paused') {
       completeWorkout();
@@ -50,6 +59,12 @@ export function WorkoutPlayer({ onClose }: WorkoutPlayerProps) {
     }
   };
 
+  const handleUploadToStrava = () => {
+    if (recording) {
+      exportAndUploadToStrava(recording);
+    }
+  };
+
   const handleDone = () => {
     stopWorkout();
     onClose?.();
@@ -57,6 +72,20 @@ export function WorkoutPlayer({ onClose }: WorkoutPlayerProps) {
 
   if (!activeWorkout) {
     return null;
+  }
+
+  if (showSummary && recording) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gray-900">
+        <WorkoutSummary
+          recording={recording}
+          plannedDuration={totalDuration}
+          onDone={handleDone}
+          onSave={handleSave}
+          onUploadToStrava={handleUploadToStrava}
+        />
+      </div>
+    );
   }
 
   return (

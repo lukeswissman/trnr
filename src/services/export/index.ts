@@ -53,3 +53,12 @@ export function exportRecording(recording: WorkoutRecording, format: string = 'f
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
+
+/**
+ * Export a workout recording and open Strava's upload page.
+ * The user will need to select the downloaded file manually.
+ */
+export function exportAndUploadToStrava(recording: WorkoutRecording): void {
+  exportRecording(recording, 'fit');
+  window.open('https://www.strava.com/upload/select', '_blank');
+}
