@@ -62,7 +62,7 @@ export function WorkoutBuilder({ workout: initialWorkout, onSave, onCancel }: Wo
         Total duration: {formatDuration(totalDuration)}
       </div>
 
-      <WorkoutChart workout={workout} height={120} />
+      <WorkoutChart workout={workout} height={160} />
 
       <SegmentList
         segments={workout.segments}

@@ -72,14 +72,18 @@ export function WorkoutPlayer({ onClose }: WorkoutPlayerProps) {
         </div>
       </div>
 
-      {/* Chart with progress */}
-      <div className="mb-6">
-        <WorkoutChart workout={activeWorkout} height={100} highlightTime={elapsed} />
-      </div>
-
       {/* Main display */}
       <div className="flex-1 flex flex-col items-center justify-center gap-8">
         <TargetDisplay targetPower={targetPower} actualPower={liveData.power} />
+
+        <div className="w-full max-w-4xl px-4">
+          <WorkoutChart
+            workout={activeWorkout}
+            height={200}
+            highlightTime={elapsed}
+            actualPower={liveData.power}
+          />
+        </div>
 
         {liveData.heartRate != null && (
           <MetricDisplay
