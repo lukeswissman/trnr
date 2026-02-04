@@ -13,6 +13,7 @@ import { SettingsModal } from './components/SettingsModal';
 import { WorkoutList } from './components/workout/WorkoutList';
 import { WorkoutBuilder } from './components/workout/WorkoutBuilder';
 import { WorkoutPlayer } from './components/workout/WorkoutPlayer';
+import Logo from './components/common/Logo';
 import { calculateSpeed } from './utils/speedCalculator';
 import type { Workout, ExecutionMode } from './types/workout';
 
@@ -41,17 +42,20 @@ function HardwareTest({ onBack }: HardwareTestProps) {
   const formatDistance = (v: number) => (v / 1000).toFixed(2);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-[#0a0a0f]">
       {/* Header */}
-      <header className="p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-gray-700">
+      <header className="p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-synth-purple/30 bg-synth-purple/5 backdrop-blur-sm">
         <div className="flex items-center gap-4">
           <button
             onClick={onBack}
-            className="text-gray-400 hover:text-white"
+            className="text-gray-400 hover:text-synth-red transition-colors"
           >
             ← Back
           </button>
-          <h1 className="text-xl font-bold">Hardware Setup n Test</h1>
+          <Logo size={32} className="scale-75 origin-left" />
+          <h1 className="text-xl font-black italic tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-synth-red to-synth-purple">
+            Hardware Setup n Test
+          </h1>
           <DeviceList />
         </div>
         <div className="flex items-center gap-2">
@@ -144,16 +148,17 @@ function WorkoutsView({ onBack, onStartWorkout }: WorkoutsViewProps) {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="p-4 flex items-center justify-between border-b border-gray-700">
+    <div className="min-h-screen flex flex-col bg-[#0a0a0f]">
+      <header className="p-4 flex items-center justify-between border-b border-synth-purple/30 bg-synth-purple/5 backdrop-blur-sm">
         <div className="flex items-center gap-4">
           <button
             onClick={view === 'builder' ? handleCancel : onBack}
-            className="text-gray-400 hover:text-white"
+            className="text-gray-400 hover:text-synth-red transition-colors"
           >
             ← Back
           </button>
-          <h1 className="text-xl font-bold">
+          <Logo size={32} className="scale-75 origin-left" />
+          <h1 className="text-xl font-black italic tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-synth-red to-synth-purple">
             {view === 'builder' ? (editingWorkout ? 'Edit Workout' : 'New Workout') : 'Workouts'}
           </h1>
         </div>
@@ -213,9 +218,8 @@ function StartWorkoutModal({ workout, onStart, onCancel }: StartWorkoutModalProp
           </label>
 
           <label
-            className={`flex items-center gap-3 p-3 bg-gray-700 rounded-lg ${
-              hasTrainerControl ? 'cursor-pointer' : 'opacity-50 cursor-not-allowed'
-            }`}
+            className={`flex items-center gap-3 p-3 bg-gray-700 rounded-lg ${hasTrainerControl ? 'cursor-pointer' : 'opacity-50 cursor-not-allowed'
+              }`}
           >
             <input
               type="radio"
@@ -265,8 +269,19 @@ function StartScreen({ onGoToWorkouts, onGoToHardware }: StartScreenProps) {
   const [showSettings, setShowSettings] = useState(false);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center relative">
-      <div className="absolute top-4 right-4">
+    <div className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden bg-[#0a0a0f]">
+      {/* Landing Background SVG */}
+      <div
+        className="absolute inset-0 z-0 opacity-60 pointer-events-none"
+        style={{
+          backgroundImage: 'url("/landing-bg.svg")',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      />
+
+      <div className="absolute top-4 right-4 z-10">
         <SettingsButton onClick={() => setShowSettings(true)} />
       </div>
 
@@ -274,22 +289,29 @@ function StartScreen({ onGoToWorkouts, onGoToHardware }: StartScreenProps) {
         <SettingsModal onClose={() => setShowSettings(false)} />
       )}
 
-      <h1 className="text-3xl font-bold mb-8">Trnr - train, eat, sleep, n repeat!</h1>
+      <div className="relative z-10 flex flex-col items-center text-center px-4">
+        <h1 className="text-6xl sm:text-8xl font-black mb-2 text-transparent bg-clip-text bg-gradient-to-b from-synth-red via-synth-purple to-synth-red italic tracking-tighter filter drop-shadow-[0_0_15px_rgba(197,2,2,0.6)]">
+          TRNR
+        </h1>
+        <p className="text-xl sm:text-2xl font-black mb-12 text-synth-red font-mono tracking-[0.3em] opacity-90 uppercase italic">
+          trAIn smarter
+        </p>
 
-      <div className="bg-gray-800 rounded-lg p-6 max-w-sm w-full mx-4">
-        <div className="space-y-3">
-          <button
-            onClick={onGoToWorkouts}
-            className="w-full px-4 py-4 bg-blue-600 hover:bg-blue-700 rounded-lg text-lg font-semibold"
-          >
-            Workouts
-          </button>
-          <button
-            onClick={onGoToHardware}
-            className="w-full px-4 py-4 bg-gray-700 hover:bg-gray-600 rounded-lg text-lg font-semibold"
-          >
-            Hardware Setup n Test
-          </button>
+        <div className="bg-synth-purple/20 backdrop-blur-xl border border-synth-red/30 rounded-3xl p-10 max-w-sm w-full shadow-[0_0_50px_rgba(58,5,111,0.3)]">
+          <div className="space-y-5">
+            <button
+              onClick={onGoToWorkouts}
+              className="w-full px-4 py-5 bg-gradient-to-br from-synth-red to-synth-purple hover:from-synth-red/90 hover:to-synth-purple/90 rounded-2xl text-xl font-black italic tracking-widest transition-all transform hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(197,2,2,0.3)] text-white"
+            >
+              WORKOUTS
+            </button>
+            <button
+              onClick={onGoToHardware}
+              className="w-full px-4 py-5 bg-transparent hover:bg-white/5 border-2 border-synth-red/50 hover:border-synth-red rounded-2xl text-xl font-black italic tracking-widest transition-all transform hover:scale-105 active:scale-95 text-synth-red"
+            >
+              HARDWARE
+            </button>
+          </div>
         </div>
       </div>
     </div>

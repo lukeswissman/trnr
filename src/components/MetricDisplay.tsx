@@ -11,14 +11,14 @@ export function MetricDisplay({ label, value, unit, formatter }: MetricDisplayPr
     : '--';
 
   return (
-    <div className="flex flex-col items-center justify-center p-6 bg-gray-800 dark:bg-gray-800 light:bg-white rounded-2xl shadow-lg">
-      <span className="text-gray-400 dark:text-gray-400 text-sm uppercase tracking-wider mb-2">
+    <div className="flex flex-col items-center justify-center p-8 bg-synth-purple/10 backdrop-blur-md rounded-3xl border border-synth-red/20 hover:border-synth-red/50 transition-all shadow-[0_0_15px_rgba(58,5,111,0.2)] group">
+      <span className="text-synth-red/60 text-xs uppercase tracking-[0.2em] mb-3 font-black italic">
         {label}
       </span>
-      <span className="text-6xl md:text-7xl lg:text-8xl font-bold tabular-nums">
+      <span className="text-6xl md:text-7xl lg:text-9xl font-black tabular-nums italic tracking-tighter text-white drop-shadow-[0_0_10px_rgba(197,2,2,0.4)] group-hover:drop-shadow-[0_0_20px_rgba(197,2,2,0.6)] transition-all">
         {displayValue}
       </span>
-      <span className="text-gray-400 dark:text-gray-400 text-lg mt-2">
+      <span className="text-synth-purple/80 text-lg mt-3 font-bold italic lowercase tracking-widest">
         {unit}
       </span>
     </div>

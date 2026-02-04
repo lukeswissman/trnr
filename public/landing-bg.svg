@@ -1,0 +1,68 @@
+<svg viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="synthSun" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#C50202" />
+      <stop offset="100%" stop-color="#3A056F" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="5" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Dark Atmospheric Background -->
+  <rect width="1000" height="1000" fill="#0a0a0f" />
+
+  <!-- The Sun -->
+  <circle cx="500" cy="400" r="300" fill="url(#synthSun)" filter="url(#glow)" />
+
+  <!-- Sun Stripes -->
+  <g fill="#0a0a0f">
+    <rect x="200" y="520" width="600" height="4" />
+    <rect x="200" y="540" width="600" height="6" />
+    <rect x="200" y="570" width="600" height="10" />
+    <rect x="200" y="610" width="600" height="16" />
+    <rect x="200" y="660" width="600" height="25" />
+  </g>
+
+  <!-- Perspective Grid -->
+  <g stroke="#C50202" stroke-width="1.5" opacity="0.3">
+    <!-- Horizontal lines -->
+    <line x1="0" y1="700" x2="1000" y2="700" />
+    <line x1="0" y1="730" x2="1000" y2="730" />
+    <line x1="0" y1="770" x2="1000" y2="770" />
+    <line x1="0" y1="820" x2="1000" y2="820" />
+    <line x1="0" y1="890" x2="1000" y2="890" />
+    <line x1="0" y1="980" x2="1000" y2="980" />
+    
+    <!-- Vanishing point lines -->
+    <line x1="500" y1="700" x2="-200" y2="1000" />
+    <line x1="500" y1="700" x2="100" y2="1000" />
+    <line x1="500" y1="700" x2="400" y2="1000" />
+    <line x1="500" y1="700" x2="500" y2="1000" />
+    <line x1="500" y1="700" x2="600" y2="1000" />
+    <line x1="500" y1="700" x2="900" y2="1000" />
+    <line x1="500" y1="700" x2="1200" y2="1000" />
+  </g>
+
+  <!-- Pixel Cyclist -->
+  <g fill="#fff" transform="translate(420, 480) scale(1.6)">
+    <rect x="42" y="48" width="4" height="4" />
+    <rect x="46" y="44" width="4" height="4" />
+    <rect x="50" y="40" width="6" height="4" />
+    <rect x="54" y="34" width="4" height="4" />
+    <rect x="56" y="40" width="4" height="4" />
+    <rect x="60" y="44" width="2" height="4" />
+    <rect x="42" y="52" width="12" height="2" />
+    <rect x="54" y="50" width="2" height="4" />
+    <rect x="42" y="54" width="2" height="6" />
+    <rect x="34" y="60" width="14" height="2" />
+    <rect x="34" y="72" width="14" height="2" />
+    <rect x="32" y="62" width="2" height="10" />
+    <rect x="48" y="62" width="2" height="10" />
+    <rect x="56" y="60" width="14" height="2" />
+    <rect x="56" y="72" width="14" height="2" />
+    <rect x="54" y="62" width="2" height="10" />
+    <rect x="70" y="62" width="2" height="10" />
+  </g>
+</svg>

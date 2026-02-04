@@ -1,0 +1,14 @@
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="synthSun" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#C50202" />
+      <stop offset="100%" stop-color="#3A056F" />
+    </linearGradient>
+  </defs>
+  <circle cx="50" cy="50" r="45" fill="url(#synthSun)" />
+  <g fill="#0a0a0f">
+    <rect x="5" y="60" width="90" height="3" />
+    <rect x="5" y="70" width="90" height="5" />
+    <rect x="5" y="82" width="90" height="8" />
+  </g>
+</svg>
