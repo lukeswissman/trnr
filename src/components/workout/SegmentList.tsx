@@ -1,3 +1,17 @@
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 import { SegmentEditor } from './SegmentEditor';
 import {
   createBlockSegment,
@@ -12,6 +26,17 @@ interface SegmentListProps {
 }
 
 export function SegmentList({ segments, onChange }: SegmentListProps) {
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
   const updateSegment = (index: number, updated: Segment) => {
     const newSegments = [...segments];
     newSegments[index] = updated;
@@ -34,6 +59,24 @@ export function SegmentList({ segments, onChange }: SegmentListProps) {
     onChange([...segments, newSegment]);
   };
 
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const oldIndex = segments.findIndex((s) => s.id === active.id);
+      const newIndex = segments.findIndex((s) => s.id === over.id);
+
+      const newSegments = [...segments];
+      const [removed] = newSegments.splice(oldIndex, 1);
+      newSegments.splice(newIndex, 0, removed);
+
+      onChange(newSegments);
+    }
+  };
+
+  // Reversed for display (newest at top)
+  const reversedSegments = [...segments].reverse();
+
   return (
     <div>
       <div className="space-y-2 mb-4">
@@ -42,36 +85,47 @@ export function SegmentList({ segments, onChange }: SegmentListProps) {
             Add segments to build your workout
           </p>
         ) : (
-          [...segments].reverse().map((segment, reversedIndex) => {
-            const originalIndex = segments.length - 1 - reversedIndex;
-            return (
-              <SegmentEditor
-                key={segment.id}
-                segment={segment}
-                onChange={(updated) => updateSegment(originalIndex, updated)}
-                onDelete={() => deleteSegment(originalIndex)}
-              />
-            );
-          })
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={reversedSegments.map((s) => s.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              {reversedSegments.map((segment) => {
+                const originalIndex = segments.findIndex((s) => s.id === segment.id);
+                return (
+                  <SegmentEditor
+                    key={segment.id}
+                    segment={segment}
+                    onChange={(updated) => updateSegment(originalIndex, updated)}
+                    onDelete={() => deleteSegment(originalIndex)}
+                  />
+                );
+              })}
+            </SortableContext>
+          </DndContext>
         )}
       </div>
 
       <div className="flex gap-2 flex-wrap">
         <button
           onClick={() => addSegment('block')}
-          className="px-3 py-1.5 bg-blue-600/20 hover:bg-blue-600/40 border border-blue-600 rounded text-sm"
+          className="px-3 py-1.5 bg-synth-accent/20 hover:bg-synth-accent/40 border border-synth-accent/50 rounded-lg text-sm"
         >
           + Block
         </button>
         <button
           onClick={() => addSegment('ramp')}
-          className="px-3 py-1.5 bg-yellow-600/20 hover:bg-yellow-600/40 border border-yellow-600 rounded text-sm"
+          className="px-3 py-1.5 bg-synth-red/20 hover:bg-synth-red/40 border border-synth-red/50 rounded-lg text-sm"
         >
           + Ramp
         </button>
         <button
           onClick={() => addSegment('repeat')}
-          className="px-3 py-1.5 bg-purple-600/20 hover:bg-purple-600/40 border border-purple-600 rounded text-sm"
+          className="px-3 py-1.5 bg-synth-purple/20 hover:bg-synth-purple/40 border border-synth-purple/40 rounded-lg text-sm"
         >
           + Repeat
         </button>

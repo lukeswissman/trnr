@@ -1,3 +1,5 @@
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { formatDuration } from '../../utils/workoutUtils';
 import type { Segment, BlockSegment, RampSegment, RepeatSegment } from '../../types/workout';
 
@@ -8,9 +10,44 @@ interface SegmentEditorProps {
   depth?: number;
 }
 
+function DragHandle({ listeners, attributes }: { listeners?: Record<string, unknown>; attributes?: Record<string, unknown> }) {
+  return (
+    <button
+      type="button"
+      className="cursor-grab active:cursor-grabbing text-gray-500 hover:text-gray-300 touch-none"
+      {...listeners}
+      {...attributes}
+    >
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+        <circle cx="5" cy="4" r="1.5" />
+        <circle cx="11" cy="4" r="1.5" />
+        <circle cx="5" cy="8" r="1.5" />
+        <circle cx="11" cy="8" r="1.5" />
+        <circle cx="5" cy="12" r="1.5" />
+        <circle cx="11" cy="12" r="1.5" />
+      </svg>
+    </button>
+  );
+}
+
 export function SegmentEditor({ segment, onChange, onDelete, depth = 0 }: SegmentEditorProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: segment.id, disabled: depth > 0 });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 1 : 0,
+  };
+
   const parseDuration = (value: string): number => {
-    // Accept either seconds or mm:ss format
     if (value.includes(':')) {
       const [mins, secs] = value.split(':').map(Number);
       return (mins || 0) * 60 + (secs || 0);
@@ -18,11 +55,11 @@ export function SegmentEditor({ segment, onChange, onDelete, depth = 0 }: Segmen
     return parseInt(value, 10) || 0;
   };
 
-  const baseClasses = "bg-gray-800 rounded-lg p-3 border-l-4";
+  const baseClasses = "bg-synth-purple/10 rounded-lg p-3 border-l-4";
   const typeColors = {
-    block: 'border-blue-500',
-    ramp: 'border-yellow-500',
-    repeat: 'border-purple-500',
+    block: 'border-synth-accent',
+    ramp: 'border-synth-red',
+    repeat: 'border-synth-purple',
   };
 
   if (segment.type === 'block') {
@@ -32,8 +69,9 @@ export function SegmentEditor({ segment, onChange, onDelete, depth = 0 }: Segmen
     };
 
     return (
-      <div className={`${baseClasses} ${typeColors.block}`}>
+      <div ref={setNodeRef} style={style} className={`${baseClasses} ${typeColors.block}`}>
         <div className="flex flex-wrap items-center gap-3">
+          {depth === 0 && <DragHandle listeners={listeners} attributes={attributes} />}
           <span className="text-sm text-gray-400 w-16">Block</span>
 
           <div className="flex items-center gap-1">
@@ -77,8 +115,9 @@ export function SegmentEditor({ segment, onChange, onDelete, depth = 0 }: Segmen
     };
 
     return (
-      <div className={`${baseClasses} ${typeColors.ramp}`}>
+      <div ref={setNodeRef} style={style} className={`${baseClasses} ${typeColors.ramp}`}>
         <div className="flex flex-wrap items-center gap-3">
+          {depth === 0 && <DragHandle listeners={listeners} attributes={attributes} />}
           <span className="text-sm text-gray-400 w-16">Ramp</span>
 
           <div className="flex items-center gap-1">
@@ -147,8 +186,9 @@ export function SegmentEditor({ segment, onChange, onDelete, depth = 0 }: Segmen
     };
 
     return (
-      <div className={`${baseClasses} ${typeColors.repeat}`}>
+      <div ref={setNodeRef} style={style} className={`${baseClasses} ${typeColors.repeat}`}>
         <div className="flex items-center gap-3 mb-3">
+          {depth === 0 && <DragHandle listeners={listeners} attributes={attributes} />}
           <span className="text-sm text-gray-400 w-16">Repeat</span>
 
           <div className="flex items-center gap-1">

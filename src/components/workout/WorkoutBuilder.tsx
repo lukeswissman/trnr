@@ -30,19 +30,19 @@ export function WorkoutBuilder({ workout: initialWorkout, onSave, onCancel }: Wo
           type="text"
           value={workout.name}
           onChange={(e) => setWorkout({ ...workout, name: e.target.value })}
-          className="text-lg font-semibold bg-transparent border-b border-gray-600 focus:border-blue-500 outline-none px-1 py-0.5"
+          className="text-lg font-semibold bg-transparent border-b border-synth-purple/30 focus:border-synth-accent outline-none px-1 py-0.5"
           placeholder="Workout Name"
         />
         <div className="flex gap-2">
           <button
             onClick={onCancel}
-            className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 rounded"
+            className="px-3 py-1.5 bg-synth-purple/20 hover:bg-synth-purple/40 border border-synth-purple/30 rounded-lg"
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
-            className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 rounded"
+            className="px-3 py-1.5 bg-synth-red hover:bg-synth-red/90 rounded-lg shadow-[0_0_10px_rgba(197,2,2,0.2)]"
             disabled={!workout.name.trim()}
           >
             Save
@@ -53,7 +53,7 @@ export function WorkoutBuilder({ workout: initialWorkout, onSave, onCancel }: Wo
       <textarea
         value={workout.description || ''}
         onChange={(e) => setWorkout({ ...workout, description: e.target.value })}
-        className="w-full bg-gray-800 rounded-lg p-3 text-sm resize-none"
+        className="w-full bg-synth-purple/10 border border-synth-purple/20 rounded-lg p-3 text-sm resize-none"
         rows={2}
         placeholder="Description (optional)"
       />
