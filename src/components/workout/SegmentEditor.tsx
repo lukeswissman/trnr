@@ -3,6 +3,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import type { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
 import { CSS } from '@dnd-kit/utilities';
 import { formatDuration } from '../../utils/workoutUtils';
+import { getZone } from '../../utils/zones';
 import type { Segment, BlockSegment, RampSegment, RepeatSegment } from '../../types/workout';
 
 interface SegmentEditorProps {
@@ -10,6 +11,19 @@ interface SegmentEditorProps {
   onChange: (segment: Segment) => void;
   onDelete: () => void;
   depth?: number;
+  ftp?: number;
+}
+
+function ZoneBadge({ power, ftp }: { power: number; ftp: number }) {
+  const zone = getZone(power, ftp);
+  return (
+    <span
+      className="text-xs font-semibold px-1.5 py-0.5 rounded"
+      style={{ color: zone.color, backgroundColor: `${zone.color}20` }}
+    >
+      Z{zone.number}
+    </span>
+  );
 }
 
 function DragHandle({ listeners, attributes }: { listeners?: SyntheticListenerMap; attributes?: DraggableAttributes }) {
@@ -32,7 +46,7 @@ function DragHandle({ listeners, attributes }: { listeners?: SyntheticListenerMa
   );
 }
 
-export function SegmentEditor({ segment, onChange, onDelete, depth = 0 }: SegmentEditorProps) {
+export function SegmentEditor({ segment, onChange, onDelete, depth = 0, ftp }: SegmentEditorProps) {
   const {
     attributes,
     listeners,
@@ -86,6 +100,7 @@ export function SegmentEditor({ segment, onChange, onDelete, depth = 0 }: Segmen
               max="2000"
             />
             <span className="text-gray-400 text-sm">W</span>
+            {ftp != null && <ZoneBadge power={blockSegment.power} ftp={ftp} />}
           </div>
 
           <div className="flex items-center gap-1">
@@ -123,6 +138,7 @@ export function SegmentEditor({ segment, onChange, onDelete, depth = 0 }: Segmen
           <span className="text-sm text-gray-400 w-16">Ramp</span>
 
           <div className="flex items-center gap-1">
+            {ftp != null && <ZoneBadge power={rampSegment.startPower} ftp={ftp} />}
             <input
               type="number"
               value={rampSegment.startPower}
@@ -141,6 +157,7 @@ export function SegmentEditor({ segment, onChange, onDelete, depth = 0 }: Segmen
               max="2000"
             />
             <span className="text-gray-400 text-sm">W</span>
+            {ftp != null && <ZoneBadge power={rampSegment.endPower} ftp={ftp} />}
           </div>
 
           <div className="flex items-center gap-1">
@@ -222,6 +239,7 @@ export function SegmentEditor({ segment, onChange, onDelete, depth = 0 }: Segmen
               onChange={(updated) => updateNestedSegment(index, updated)}
               onDelete={() => deleteNestedSegment(index)}
               depth={depth + 1}
+              ftp={ftp}
             />
           ))}
 

@@ -1,12 +1,14 @@
 import { useMemo, useId } from 'react';
 import { flattenWorkout, calculateTotalDuration } from '../../utils/workoutUtils';
-import type { Workout } from '../../types/workout';
+import { getZoneColor, ZONES } from '../../utils/zones';
+import type { Workout, FlatStep } from '../../types/workout';
 
 interface WorkoutChartProps {
   workout: Workout | null;
   height?: number;
   highlightTime?: number | null;
   actualPower?: number | null;
+  ftp?: number;
   id?: string;
 }
 
@@ -20,36 +22,37 @@ export function WorkoutChart({
   height = 120,
   highlightTime = null,
   actualPower = null,
+  ftp,
   id: providedId
 }: WorkoutChartProps) {
   const generatedId = useId();
   const id = providedId || generatedId.replace(/:/g, '');
-  const { points, maxPower, totalDuration } = useMemo(() => {
+  const { points, maxPower, totalDuration, plan } = useMemo(() => {
     if (!workout || workout.segments.length === 0) {
-      return { points: [] as ChartPoint[], maxPower: 200, totalDuration: 0 };
+      return { points: [] as ChartPoint[], maxPower: 200, totalDuration: 0, plan: [] as FlatStep[] };
     }
 
-    const plan = flattenWorkout(workout);
+    const flatPlan = flattenWorkout(workout);
     const duration = calculateTotalDuration(workout.segments);
 
-    if (plan.length === 0) {
-      return { points: [] as ChartPoint[], maxPower: 200, totalDuration: 0 };
+    if (flatPlan.length === 0) {
+      return { points: [] as ChartPoint[], maxPower: 200, totalDuration: 0, plan: [] as FlatStep[] };
     }
 
     // Find max power for scaling
     let max = 100;
-    for (const step of plan) {
+    for (const step of flatPlan) {
       if (step.type === 'block') {
         max = Math.max(max, step.power);
       } else {
         max = Math.max(max, step.startPower!, step.endPower!);
       }
     }
-    max = Math.ceil(max / 50) * 50; // Round up to nearest 50
+    max = Math.ceil(max / 50) * 50;
 
     // Generate SVG path points
     const pts: ChartPoint[] = [];
-    for (const step of plan) {
+    for (const step of flatPlan) {
       if (step.type === 'block') {
         pts.push({ time: step.startTime, power: step.power });
         pts.push({ time: step.endTime, power: step.power });
@@ -59,7 +62,7 @@ export function WorkoutChart({
       }
     }
 
-    return { points: pts, maxPower: max, totalDuration: duration };
+    return { points: pts, maxPower: max, totalDuration: duration, plan: flatPlan };
   }, [workout]);
 
   if (points.length === 0) {
@@ -82,19 +85,63 @@ export function WorkoutChart({
   const xScale = (time: number) => padding.left + (time / totalDuration) * innerWidth;
   const yScale = (power: number) => padding.top + innerHeight - (power / maxPower) * innerHeight;
 
-  // Build path
+  // Build top line path
   let pathD = `M ${xScale(points[0].time)} ${yScale(points[0].power)}`;
   for (let i = 1; i < points.length; i++) {
     pathD += ` L ${xScale(points[i].time)} ${yScale(points[i].power)}`;
   }
 
-  // Area fill path
+  // Fallback area fill path (uniform blue, used when no FTP)
   const areaD = `${pathD} L ${xScale(totalDuration)} ${yScale(0)} L ${xScale(0)} ${yScale(0)} Z`;
+
+  const useZoneColors = ftp != null && ftp > 0;
+
+  // Build per-step zone-colored fill paths
+  const zoneFills = useMemo(() => {
+    if (!useZoneColors) return [];
+
+    return plan.map((step) => {
+      const x1 = xScale(step.startTime);
+      const x2 = xScale(step.endTime);
+      const baseY = yScale(0);
+
+      if (step.type === 'block') {
+        const topY = yScale(step.power);
+        const color = getZoneColor(step.power, ftp!);
+        const d = `M ${x1} ${topY} L ${x2} ${topY} L ${x2} ${baseY} L ${x1} ${baseY} Z`;
+        return { d, color, key: `${step.startTime}-block` };
+      } else {
+        // Ramp: create a trapezoid
+        const startY = yScale(step.startPower!);
+        const endY = yScale(step.endPower!);
+        const avgPower = (step.startPower! + step.endPower!) / 2;
+        const color = getZoneColor(avgPower, ftp!);
+        const d = `M ${x1} ${startY} L ${x2} ${endY} L ${x2} ${baseY} L ${x1} ${baseY} Z`;
+        return { d, color, key: `${step.startTime}-ramp` };
+      }
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [plan, ftp, totalDuration, maxPower]);
+
+  // Zone boundary lines (horizontal)
+  const zoneBands = useMemo(() => {
+    if (!useZoneColors) return [];
+
+    return ZONES
+      .filter((z) => z.maxFtp !== Infinity && z.maxFtp * ftp! <= maxPower)
+      .map((z) => ({
+        power: Math.round(z.maxFtp * ftp!),
+        y: yScale(z.maxFtp * ftp!),
+        color: z.color,
+        label: `Z${z.number}`,
+      }));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ftp, maxPower]);
 
   // Y-axis labels
   const yTicks = [0, maxPower / 2, maxPower];
 
-  // X-axis labels (show a few time markers)
+  // X-axis labels
   const xTicks: number[] = [];
   const step = totalDuration > 600 ? 300 : totalDuration > 120 ? 60 : 30;
   for (let t = 0; t <= totalDuration; t += step) {
@@ -160,8 +207,38 @@ export function WorkoutChart({
         />
       ))}
 
-      {/* Area fill */}
-      <path d={areaD} fill={`url(#${id}-gradient)`} className="transition-all duration-300" />
+      {/* Zone boundary lines */}
+      {zoneBands.map((band) => (
+        <g key={band.label}>
+          <line
+            x1={padding.left}
+            y1={band.y}
+            x2={chartWidth - padding.right}
+            y2={band.y}
+            stroke={band.color}
+            strokeOpacity="0.2"
+            strokeDasharray="4,4"
+          />
+          <text
+            x={chartWidth - padding.right + 2}
+            y={band.y + 3}
+            fontSize="7"
+            fill={band.color}
+            fillOpacity="0.5"
+          >
+            {band.label}
+          </text>
+        </g>
+      ))}
+
+      {/* Area fill: zone-colored segments or uniform blue */}
+      {useZoneColors ? (
+        zoneFills.map((fill) => (
+          <path key={fill.key} d={fill.d} fill={fill.color} fillOpacity="0.35" />
+        ))
+      ) : (
+        <path d={areaD} fill={`url(#${id}-gradient)`} className="transition-all duration-300" />
+      )}
 
       {/* Line */}
       <path

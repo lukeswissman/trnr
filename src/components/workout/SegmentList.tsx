@@ -18,14 +18,16 @@ import {
   createRampSegment,
   createRepeatSegment,
 } from '../../utils/workoutUtils';
+import { ZONES, getZoneMidpoint, ZONE_DEFAULT_DURATIONS } from '../../utils/zones';
 import type { Segment, SegmentType } from '../../types/workout';
 
 interface SegmentListProps {
   segments: Segment[];
   onChange: (segments: Segment[]) => void;
+  ftp?: number;
 }
 
-export function SegmentList({ segments, onChange }: SegmentListProps) {
+export function SegmentList({ segments, onChange, ftp }: SegmentListProps) {
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -57,6 +59,13 @@ export function SegmentList({ segments, onChange }: SegmentListProps) {
       newSegment = createRepeatSegment(3, [createBlockSegment()]);
     }
     onChange([...segments, newSegment]);
+  };
+
+  const addZoneSegment = (zoneNumber: number) => {
+    if (!ftp) return;
+    const power = getZoneMidpoint(zoneNumber, ftp);
+    const duration = ZONE_DEFAULT_DURATIONS[zoneNumber] || 60;
+    onChange([...segments, createBlockSegment(power, duration)]);
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -102,6 +111,7 @@ export function SegmentList({ segments, onChange }: SegmentListProps) {
                     segment={segment}
                     onChange={(updated) => updateSegment(originalIndex, updated)}
                     onDelete={() => deleteSegment(originalIndex)}
+                    ftp={ftp}
                   />
                 );
               })}
@@ -130,6 +140,26 @@ export function SegmentList({ segments, onChange }: SegmentListProps) {
           + Repeat
         </button>
       </div>
+
+      {ftp != null && (
+        <div className="flex gap-1.5 flex-wrap mt-2">
+          {ZONES.map((zone) => (
+            <button
+              key={zone.number}
+              onClick={() => addZoneSegment(zone.number)}
+              className="px-2 py-1 rounded text-xs font-semibold transition-opacity hover:opacity-80"
+              style={{
+                color: zone.color,
+                backgroundColor: `${zone.color}15`,
+                border: `1px solid ${zone.color}40`,
+              }}
+              title={`${zone.name} — ${getZoneMidpoint(zone.number, ftp)}W`}
+            >
+              Z{zone.number}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { useWorkout } from '../../hooks/useWorkout';
+import { useSettings } from '../../hooks/useSettings';
 import { useBluetooth } from '../../hooks/useBluetooth';
 import { useRecorder } from '../../hooks/useRecorder';
 import { exportRecording, exportAndUploadToStrava } from '../../services/export';
@@ -27,6 +28,7 @@ export function WorkoutPlayer({ onClose }: WorkoutPlayerProps) {
     stopWorkout,
   } = useWorkout();
 
+  const { settings } = useSettings();
   const { liveData } = useBluetooth();
 
   const { recording } = useRecorder({
@@ -105,6 +107,7 @@ export function WorkoutPlayer({ onClose }: WorkoutPlayerProps) {
             height={200}
             highlightTime={elapsed}
             actualPower={liveData.power}
+            ftp={settings.ftp}
           />
         </div>
 

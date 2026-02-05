@@ -1,9 +1,12 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useWorkout } from '../../hooks/useWorkout';
+import { useSettings } from '../../hooks/useSettings';
 import { SegmentList } from './SegmentList';
 import { WorkoutChart } from './WorkoutChart';
-import { createWorkout, formatDuration, calculateTotalDuration } from '../../utils/workoutUtils';
+import { createWorkout, formatDuration, calculateTotalDuration, flattenWorkout } from '../../utils/workoutUtils';
+import { calculateZoneDistribution } from '../../utils/zones';
 import type { Workout } from '../../types/workout';
+import type { ZoneDistribution } from '../../utils/zones';
 
 interface WorkoutBuilderProps {
   workout?: Workout | null;
@@ -14,6 +17,7 @@ interface WorkoutBuilderProps {
 // Note: parent component should use key={workout?.id || 'new'} to reset state when workout changes
 export function WorkoutBuilder({ workout: initialWorkout, onSave, onCancel }: WorkoutBuilderProps) {
   const { saveWorkout } = useWorkout();
+  const { settings } = useSettings();
   const [workout, setWorkout] = useState<Workout>(() => initialWorkout || createWorkout());
 
   const handleSave = () => {
@@ -22,6 +26,12 @@ export function WorkoutBuilder({ workout: initialWorkout, onSave, onCancel }: Wo
   };
 
   const totalDuration = calculateTotalDuration(workout.segments);
+
+  const zoneDistribution = useMemo((): ZoneDistribution[] => {
+    if (!settings.ftp || workout.segments.length === 0) return [];
+    const steps = flattenWorkout(workout);
+    return calculateZoneDistribution(steps, settings.ftp);
+  }, [workout, settings.ftp]);
 
   return (
     <div className="space-y-4">
@@ -62,11 +72,42 @@ export function WorkoutBuilder({ workout: initialWorkout, onSave, onCancel }: Wo
         Total duration: {formatDuration(totalDuration)}
       </div>
 
-      <WorkoutChart workout={workout} height={160} />
+      <WorkoutChart workout={workout} height={160} ftp={settings.ftp} />
+
+      {zoneDistribution.length > 0 && (
+        <div className="space-y-1.5">
+          <div className="flex h-3 rounded-full overflow-hidden">
+            {zoneDistribution.map((d) => (
+              <div
+                key={d.zone.number}
+                className="h-full transition-all duration-300"
+                style={{
+                  width: `${d.percentage}%`,
+                  backgroundColor: d.zone.color,
+                  opacity: 0.8,
+                }}
+                title={`Z${d.zone.number} ${d.zone.name} — ${formatDuration(d.seconds)} (${Math.round(d.percentage)}%)`}
+              />
+            ))}
+          </div>
+          <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-gray-400">
+            {zoneDistribution.map((d) => (
+              <span key={d.zone.number} className="flex items-center gap-1">
+                <span
+                  className="inline-block w-2 h-2 rounded-full"
+                  style={{ backgroundColor: d.zone.color }}
+                />
+                Z{d.zone.number} {Math.round(d.percentage)}%
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
 
       <SegmentList
         segments={workout.segments}
         onChange={(segments) => setWorkout({ ...workout, segments })}
+        ftp={settings.ftp}
       />
     </div>
   );

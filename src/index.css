@@ -5,6 +5,15 @@
   --color-synth-purple: #3A056F;
   --color-synth-red: #C50202;
   --color-synth-accent: #00f3ff;
+
+  /* Training zone colors */
+  --color-zone-1: #94a3b8;
+  --color-zone-2: #3b82f6;
+  --color-zone-3: #22c55e;
+  --color-zone-4: #eab308;
+  --color-zone-5: #f97316;
+  --color-zone-6: #ef4444;
+  --color-zone-7: #a855f7;
 }
 
 body {

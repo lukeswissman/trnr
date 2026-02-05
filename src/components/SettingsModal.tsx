@@ -9,11 +9,15 @@ export function SettingsModal({ onClose }: SettingsModalProps) {
   const { settings, updateSettings } = useSettings();
   const [riderWeight, setRiderWeight] = useState(String(settings.riderWeight));
   const [bikeWeight, setBikeWeight] = useState(String(settings.bikeWeight));
+  const [ftp, setFtp] = useState(settings.ftp != null ? String(settings.ftp) : '');
+  const [maxHr, setMaxHr] = useState(settings.maxHr != null ? String(settings.maxHr) : '');
 
   const handleSave = () => {
     updateSettings({
       riderWeight: parseFloat(riderWeight) || 75,
       bikeWeight: parseFloat(bikeWeight) || 9,
+      ftp: ftp.trim() ? parseFloat(ftp) : undefined,
+      maxHr: maxHr.trim() ? parseFloat(maxHr) : undefined,
     });
     onClose();
   };
@@ -65,6 +69,43 @@ export function SettingsModal({ onClose }: SettingsModalProps) {
 
           <div className="pt-2 text-sm text-gray-400">
             Total weight: {(parseFloat(riderWeight) || 0) + (parseFloat(bikeWeight) || 0)} kg
+          </div>
+
+          <div className="border-t border-gray-700 pt-4 mt-2">
+            <h3 className="text-sm font-semibold text-gray-300 mb-3">Training Zones</h3>
+
+            <div>
+              <label className="block text-sm text-gray-400 mb-2">
+                FTP (watts)
+              </label>
+              <input
+                type="number"
+                value={ftp}
+                onChange={(e) => setFtp(e.target.value)}
+                min="50"
+                max="500"
+                step="1"
+                placeholder="Not set"
+                className="w-full px-4 py-3 bg-gray-700 rounded-lg text-white text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-500"
+              />
+              <p className="text-xs text-gray-500 mt-1">Used to calculate training zones</p>
+            </div>
+
+            <div className="mt-4">
+              <label className="block text-sm text-gray-400 mb-2">
+                Max Heart Rate (bpm)
+              </label>
+              <input
+                type="number"
+                value={maxHr}
+                onChange={(e) => setMaxHr(e.target.value)}
+                min="100"
+                max="220"
+                step="1"
+                placeholder="Not set"
+                className="w-full px-4 py-3 bg-gray-700 rounded-lg text-white text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-500"
+              />
+            </div>
           </div>
         </div>
 

@@ -3,6 +3,8 @@ import { createContext } from 'react';
 export interface Settings {
   riderWeight: number;
   bikeWeight: number;
+  ftp?: number;    // Functional Threshold Power (watts)
+  maxHr?: number;  // Maximum Heart Rate (bpm)
 }
 
 export interface SettingsContextValue {
