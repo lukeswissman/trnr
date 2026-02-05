@@ -1,4 +1,6 @@
+import type { DraggableAttributes } from '@dnd-kit/core';
 import { useSortable } from '@dnd-kit/sortable';
+import type { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
 import { CSS } from '@dnd-kit/utilities';
 import { formatDuration } from '../../utils/workoutUtils';
 import type { Segment, BlockSegment, RampSegment, RepeatSegment } from '../../types/workout';
@@ -10,7 +12,7 @@ interface SegmentEditorProps {
   depth?: number;
 }
 
-function DragHandle({ listeners, attributes }: { listeners?: Record<string, unknown>; attributes?: Record<string, unknown> }) {
+function DragHandle({ listeners, attributes }: { listeners?: SyntheticListenerMap; attributes?: DraggableAttributes }) {
   return (
     <button
       type="button"
