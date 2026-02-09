@@ -65,17 +65,6 @@ export function WorkoutChart({
     return { points: pts, maxPower: max, totalDuration: duration, plan: flatPlan };
   }, [workout]);
 
-  if (points.length === 0) {
-    return (
-      <div
-        className="bg-gray-200 rounded-lg flex items-center justify-center text-gray-400"
-        style={{ height }}
-      >
-        No segments
-      </div>
-    );
-  }
-
   const padding = { top: 10, right: 10, bottom: 20, left: 40 };
   const chartWidth = 400;
   const chartHeight = height;
@@ -84,15 +73,6 @@ export function WorkoutChart({
 
   const xScale = (time: number) => padding.left + (time / totalDuration) * innerWidth;
   const yScale = (power: number) => padding.top + innerHeight - (power / maxPower) * innerHeight;
-
-  // Build top line path
-  let pathD = `M ${xScale(points[0].time)} ${yScale(points[0].power)}`;
-  for (let i = 1; i < points.length; i++) {
-    pathD += ` L ${xScale(points[i].time)} ${yScale(points[i].power)}`;
-  }
-
-  // Fallback area fill path (uniform blue, used when no FTP)
-  const areaD = `${pathD} L ${xScale(totalDuration)} ${yScale(0)} L ${xScale(0)} ${yScale(0)} Z`;
 
   const useZoneColors = ftp != null && ftp > 0;
 
@@ -137,6 +117,26 @@ export function WorkoutChart({
       }));
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ftp, maxPower]);
+
+  if (points.length === 0) {
+    return (
+      <div
+        className="bg-gray-200 rounded-lg flex items-center justify-center text-gray-400"
+        style={{ height }}
+      >
+        No segments
+      </div>
+    );
+  }
+
+  // Build top line path
+  let pathD = `M ${xScale(points[0].time)} ${yScale(points[0].power)}`;
+  for (let i = 1; i < points.length; i++) {
+    pathD += ` L ${xScale(points[i].time)} ${yScale(points[i].power)}`;
+  }
+
+  // Fallback area fill path (uniform blue, used when no FTP)
+  const areaD = `${pathD} L ${xScale(totalDuration)} ${yScale(0)} L ${xScale(0)} ${yScale(0)} Z`;
 
   // Y-axis labels
   const yTicks = [0, maxPower / 2, maxPower];
