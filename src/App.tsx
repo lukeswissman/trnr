@@ -42,7 +42,7 @@ function HardwareTest({ onBack }: HardwareTestProps) {
   const formatDistance = (v: number) => (v / 1000).toFixed(2);
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0a0a0f]">
+    <div className="min-h-screen flex flex-col bg-gray-100">
       {/* Header */}
       <header className="p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-synth-purple/30 bg-synth-purple/5 backdrop-blur-sm">
         <div className="flex items-center gap-4">
@@ -148,7 +148,7 @@ function WorkoutsView({ onBack, onStartWorkout }: WorkoutsViewProps) {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0a0a0f]">
+    <div className="min-h-screen flex flex-col bg-gray-100">
       <header className="p-4 flex items-center justify-between border-b border-synth-purple/30 bg-synth-purple/5 backdrop-blur-sm">
         <div className="flex items-center gap-4">
           <button
@@ -196,13 +196,13 @@ function StartWorkoutModal({ workout, onStart, onCancel }: StartWorkoutModalProp
   const [mode, setMode] = useState<ExecutionMode>('display');
 
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
-      <div className="bg-gray-800 rounded-lg p-6 max-w-sm w-full">
-        <h2 className="text-lg font-semibold mb-4">Start Workout</h2>
-        <p className="text-gray-400 mb-4">{workout.name}</p>
+    <div className="fixed inset-0 bg-black/30 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-lg p-6 max-w-sm w-full shadow-xl">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Start Workout</h2>
+        <p className="text-gray-500 mb-4">{workout.name}</p>
 
         <div className="space-y-3 mb-6">
-          <label className="flex items-center gap-3 p-3 bg-gray-700 rounded-lg cursor-pointer">
+          <label className="flex items-center gap-3 p-3 bg-gray-100 rounded-lg cursor-pointer">
             <input
               type="radio"
               name="mode"
@@ -212,13 +212,13 @@ function StartWorkoutModal({ workout, onStart, onCancel }: StartWorkoutModalProp
               className="w-4 h-4"
             />
             <div>
-              <div className="font-medium">Display Only</div>
-              <div className="text-sm text-gray-400">Show target power, no trainer control</div>
+              <div className="font-medium text-gray-900">Display Only</div>
+              <div className="text-sm text-gray-500">Show target power, no trainer control</div>
             </div>
           </label>
 
           <label
-            className={`flex items-center gap-3 p-3 bg-gray-700 rounded-lg ${hasTrainerControl ? 'cursor-pointer' : 'opacity-50 cursor-not-allowed'
+            className={`flex items-center gap-3 p-3 bg-gray-100 rounded-lg ${hasTrainerControl ? 'cursor-pointer' : 'opacity-50 cursor-not-allowed'
               }`}
           >
             <input
@@ -231,8 +231,8 @@ function StartWorkoutModal({ workout, onStart, onCancel }: StartWorkoutModalProp
               className="w-4 h-4"
             />
             <div>
-              <div className="font-medium">ERG Mode</div>
-              <div className="text-sm text-gray-400">
+              <div className="font-medium text-gray-900">ERG Mode</div>
+              <div className="text-sm text-gray-500">
                 {hasTrainerControl
                   ? 'Control trainer resistance automatically'
                   : 'Connect a trainer to enable'}
@@ -244,13 +244,13 @@ function StartWorkoutModal({ workout, onStart, onCancel }: StartWorkoutModalProp
         <div className="flex gap-3">
           <button
             onClick={onCancel}
-            className="flex-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg"
+            className="flex-1 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg"
           >
             Cancel
           </button>
           <button
             onClick={() => onStart(mode)}
-            className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg"
+            className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg"
           >
             Start
           </button>
@@ -269,7 +269,7 @@ function StartScreen({ onGoToWorkouts, onGoToHardware }: StartScreenProps) {
   const [showSettings, setShowSettings] = useState(false);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden bg-[#0a0a0f]">
+    <div className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden bg-gray-100">
       {/* Landing Background SVG */}
       <div
         className="absolute inset-0 z-0 opacity-60 pointer-events-none"

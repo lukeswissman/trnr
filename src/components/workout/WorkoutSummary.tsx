@@ -18,11 +18,11 @@ export function WorkoutSummary({ recording, plannedDuration, onDone, onSave, onU
     return (
         <div className="max-w-2xl mx-auto w-full p-6 space-y-8 animate-in fade-in zoom-in duration-300">
             <div className="text-center space-y-2">
-                <h2 className="text-3xl font-bold text-white">Workout Summary</h2>
-                <p className="text-gray-400">{recording.workoutName}</p>
+                <h2 className="text-3xl font-bold text-gray-900">Workout Summary</h2>
+                <p className="text-gray-500">{recording.workoutName}</p>
             </div>
 
-            <div className="bg-slate-800/50 rounded-2xl p-8 border border-slate-700 shadow-xl">
+            <div className="bg-white rounded-2xl p-8 border border-gray-200 shadow-lg">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                     <StatBox label="Duration" value={formatDuration(Math.round(stats.totalDuration))} />
                     <StatBox label="Completed" value={`${percentCompleted}%`} />
@@ -31,24 +31,24 @@ export function WorkoutSummary({ recording, plannedDuration, onDone, onSave, onU
                 </div>
             </div>
 
-            <div className="bg-slate-800/30 rounded-2xl p-6 border border-slate-700/50">
-                <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Benchmarks</h3>
+            <div className="bg-white/60 rounded-2xl p-6 border border-gray-200">
+                <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Benchmarks</h3>
                 <div className="grid grid-cols-2 gap-4">
-                    <div className="flex justify-between items-center py-2 border-b border-slate-700/50">
-                        <span className="text-gray-400">Max Power</span>
-                        <span className="text-white font-medium">{stats.maxPower}W</span>
+                    <div className="flex justify-between items-center py-2 border-b border-gray-200">
+                        <span className="text-gray-500">Max Power</span>
+                        <span className="text-gray-900 font-medium">{stats.maxPower}W</span>
                     </div>
-                    <div className="flex justify-between items-center py-2 border-b border-slate-700/50">
-                        <span className="text-gray-400">Max HR</span>
-                        <span className="text-white font-medium">{stats.maxHeartRate > 0 ? `${stats.maxHeartRate} bpm` : '--'}</span>
+                    <div className="flex justify-between items-center py-2 border-b border-gray-200">
+                        <span className="text-gray-500">Max HR</span>
+                        <span className="text-gray-900 font-medium">{stats.maxHeartRate > 0 ? `${stats.maxHeartRate} bpm` : '--'}</span>
                     </div>
-                    <div className="flex justify-between items-center py-2 border-b border-slate-700/50">
-                        <span className="text-gray-400">Avg Cadence</span>
-                        <span className="text-white font-medium">{stats.avgCadence > 0 ? `${stats.avgCadence} rpm` : '--'}</span>
+                    <div className="flex justify-between items-center py-2 border-b border-gray-200">
+                        <span className="text-gray-500">Avg Cadence</span>
+                        <span className="text-gray-900 font-medium">{stats.avgCadence > 0 ? `${stats.avgCadence} rpm` : '--'}</span>
                     </div>
-                    <div className="flex justify-between items-center py-2 border-b border-slate-700/50">
-                        <span className="text-gray-400">Intensity</span>
-                        <span className="text-white font-medium">{Math.round((stats.avgPower / 200) * 100)}%</span> {/* Mock intensity */}
+                    <div className="flex justify-between items-center py-2 border-b border-gray-200">
+                        <span className="text-gray-500">Intensity</span>
+                        <span className="text-gray-900 font-medium">{Math.round((stats.avgPower / 200) * 100)}%</span> {/* Mock intensity */}
                     </div>
                 </div>
             </div>
@@ -68,7 +68,7 @@ export function WorkoutSummary({ recording, plannedDuration, onDone, onSave, onU
                 </button>
                 <button
                     onClick={onDone}
-                    className="flex-1 px-6 py-4 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-bold transition-all"
+                    className="flex-1 px-6 py-4 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-xl font-bold transition-all"
                 >
                     Done
                 </button>
@@ -80,8 +80,8 @@ export function WorkoutSummary({ recording, plannedDuration, onDone, onSave, onU
 function StatBox({ label, value }: { label: string; value: string }) {
     return (
         <div className="text-center space-y-1">
-            <div className="text-xs text-gray-400 uppercase tracking-wider font-semibold">{label}</div>
-            <div className="text-2xl font-bold text-blue-400">{value}</div>
+            <div className="text-xs text-gray-500 uppercase tracking-wider font-semibold">{label}</div>
+            <div className="text-2xl font-bold text-blue-600">{value}</div>
         </div>
     );
 }

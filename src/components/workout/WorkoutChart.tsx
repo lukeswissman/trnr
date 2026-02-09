@@ -68,7 +68,7 @@ export function WorkoutChart({
   if (points.length === 0) {
     return (
       <div
-        className="bg-gray-800 rounded-lg flex items-center justify-center text-gray-500"
+        className="bg-gray-200 rounded-lg flex items-center justify-center text-gray-400"
         style={{ height }}
       >
         No segments
@@ -179,7 +179,7 @@ export function WorkoutChart({
   return (
     <svg
       viewBox={`0 0 ${chartWidth} ${chartHeight}`}
-      className="w-full bg-slate-900 rounded-xl shadow-inner"
+      className="w-full bg-white rounded-xl shadow-inner border border-gray-200"
       style={{ height }}
       preserveAspectRatio="xMidYMid meet"
     >
@@ -202,7 +202,7 @@ export function WorkoutChart({
           y1={yScale(tick)}
           x2={chartWidth - padding.right}
           y2={yScale(tick)}
-          stroke="#374151"
+          stroke="#d1d5db"
           strokeDasharray="2,2"
         />
       ))}
@@ -258,7 +258,7 @@ export function WorkoutChart({
           x={padding.left - 5}
           y={yScale(tick) + 4}
           textAnchor="end"
-          className="text-xs fill-gray-400"
+          className="text-xs fill-gray-500"
           fontSize="10"
         >
           {tick}
@@ -272,7 +272,7 @@ export function WorkoutChart({
           x={xScale(tick)}
           y={chartHeight - 4}
           textAnchor="middle"
-          className="text-xs fill-gray-400"
+          className="text-xs fill-gray-500"
           fontSize="10"
         >
           {formatTime(tick)}

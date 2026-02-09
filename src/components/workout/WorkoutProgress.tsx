@@ -12,7 +12,7 @@ export function WorkoutProgress({ elapsed, totalDuration }: WorkoutProgressProps
   return (
     <div className="w-full">
       {/* Progress bar */}
-      <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
+      <div className="h-2 bg-gray-600 rounded-full overflow-hidden">
         <div
           className="h-full bg-blue-500 transition-all duration-100"
           style={{ width: `${progress * 100}%` }}

@@ -6,7 +6,7 @@ export function SettingsButton({ onClick }: SettingsButtonProps) {
   return (
     <button
       onClick={onClick}
-      className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
+      className="p-2 hover:bg-gray-600 rounded-lg transition-colors"
       aria-label="Settings"
     >
       <svg

@@ -95,7 +95,7 @@ export function SegmentEditor({ segment, onChange, onDelete, depth = 0, ftp }: S
               type="number"
               value={blockSegment.power}
               onChange={(e) => updateField('power', parseInt(e.target.value, 10) || 0)}
-              className="w-20 px-2 py-1 bg-gray-700 rounded text-right"
+              className="w-20 px-2 py-1 bg-gray-200 rounded text-right"
               min="0"
               max="2000"
             />
@@ -108,7 +108,7 @@ export function SegmentEditor({ segment, onChange, onDelete, depth = 0, ftp }: S
               type="text"
               value={formatDuration(blockSegment.duration)}
               onChange={(e) => updateField('duration', parseDuration(e.target.value))}
-              className="w-16 px-2 py-1 bg-gray-700 rounded text-center"
+              className="w-16 px-2 py-1 bg-gray-200 rounded text-center"
               placeholder="0:00"
             />
           </div>
@@ -143,7 +143,7 @@ export function SegmentEditor({ segment, onChange, onDelete, depth = 0, ftp }: S
               type="number"
               value={rampSegment.startPower}
               onChange={(e) => updateField('startPower', parseInt(e.target.value, 10) || 0)}
-              className="w-20 px-2 py-1 bg-gray-700 rounded text-right"
+              className="w-20 px-2 py-1 bg-gray-200 rounded text-right"
               min="0"
               max="2000"
             />
@@ -152,7 +152,7 @@ export function SegmentEditor({ segment, onChange, onDelete, depth = 0, ftp }: S
               type="number"
               value={rampSegment.endPower}
               onChange={(e) => updateField('endPower', parseInt(e.target.value, 10) || 0)}
-              className="w-20 px-2 py-1 bg-gray-700 rounded text-right"
+              className="w-20 px-2 py-1 bg-gray-200 rounded text-right"
               min="0"
               max="2000"
             />
@@ -165,7 +165,7 @@ export function SegmentEditor({ segment, onChange, onDelete, depth = 0, ftp }: S
               type="text"
               value={formatDuration(rampSegment.duration)}
               onChange={(e) => updateField('duration', parseDuration(e.target.value))}
-              className="w-16 px-2 py-1 bg-gray-700 rounded text-center"
+              className="w-16 px-2 py-1 bg-gray-200 rounded text-center"
               placeholder="0:00"
             />
           </div>
@@ -215,7 +215,7 @@ export function SegmentEditor({ segment, onChange, onDelete, depth = 0, ftp }: S
               type="number"
               value={repeatSegment.count}
               onChange={(e) => onChange({ ...repeatSegment, count: Math.max(1, parseInt(e.target.value, 10) || 1) })}
-              className="w-16 px-2 py-1 bg-gray-700 rounded text-center"
+              className="w-16 px-2 py-1 bg-gray-200 rounded text-center"
               min="1"
               max="100"
             />
@@ -247,13 +247,13 @@ export function SegmentEditor({ segment, onChange, onDelete, depth = 0, ftp }: S
             <div className="flex gap-2 pt-2">
               <button
                 onClick={() => addNestedSegment('block')}
-                className="px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 rounded"
+                className="px-2 py-1 text-xs bg-gray-200 hover:bg-gray-300 rounded"
               >
                 + Block
               </button>
               <button
                 onClick={() => addNestedSegment('ramp')}
-                className="px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 rounded"
+                className="px-2 py-1 text-xs bg-gray-200 hover:bg-gray-300 rounded"
               >
                 + Ramp
               </button>

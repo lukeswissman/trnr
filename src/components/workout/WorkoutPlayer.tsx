@@ -72,7 +72,7 @@ export function WorkoutPlayer({ onClose }: WorkoutPlayerProps) {
 
   if (showSummary && recording) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gray-900">
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gray-100">
         <WorkoutSummary
           recording={recording}
           plannedDuration={totalDuration}

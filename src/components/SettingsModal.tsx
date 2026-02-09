@@ -33,7 +33,7 @@ export function SettingsModal({ onClose }: SettingsModalProps) {
       className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
       onClick={handleBackdropClick}
     >
-      <div className="bg-gray-800 rounded-2xl p-6 w-full max-w-md mx-4 shadow-xl">
+      <div className="bg-gray-600 rounded-2xl p-6 w-full max-w-md mx-4 shadow-xl">
         <h2 className="text-xl font-bold mb-6">Rider Profile</h2>
 
         <div className="space-y-4">
@@ -48,7 +48,7 @@ export function SettingsModal({ onClose }: SettingsModalProps) {
               min="30"
               max="200"
               step="0.1"
-              className="w-full px-4 py-3 bg-gray-700 rounded-lg text-white text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 bg-gray-600 rounded-lg text-white text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
@@ -63,7 +63,7 @@ export function SettingsModal({ onClose }: SettingsModalProps) {
               min="5"
               max="25"
               step="0.1"
-              className="w-full px-4 py-3 bg-gray-700 rounded-lg text-white text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 bg-gray-600 rounded-lg text-white text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
@@ -71,7 +71,7 @@ export function SettingsModal({ onClose }: SettingsModalProps) {
             Total weight: {(parseFloat(riderWeight) || 0) + (parseFloat(bikeWeight) || 0)} kg
           </div>
 
-          <div className="border-t border-gray-700 pt-4 mt-2">
+          <div className="border-t border-gray-500 pt-4 mt-2">
             <h3 className="text-sm font-semibold text-gray-300 mb-3">Training Zones</h3>
 
             <div>
@@ -86,7 +86,7 @@ export function SettingsModal({ onClose }: SettingsModalProps) {
                 max="500"
                 step="1"
                 placeholder="Not set"
-                className="w-full px-4 py-3 bg-gray-700 rounded-lg text-white text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-500"
+                className="w-full px-4 py-3 bg-gray-600 rounded-lg text-white text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-500"
               />
               <p className="text-xs text-gray-500 mt-1">Used to calculate training zones</p>
             </div>
@@ -103,7 +103,7 @@ export function SettingsModal({ onClose }: SettingsModalProps) {
                 max="220"
                 step="1"
                 placeholder="Not set"
-                className="w-full px-4 py-3 bg-gray-700 rounded-lg text-white text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-500"
+                className="w-full px-4 py-3 bg-gray-600 rounded-lg text-white text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-500"
               />
             </div>
           </div>
@@ -112,7 +112,7 @@ export function SettingsModal({ onClose }: SettingsModalProps) {
         <div className="flex gap-3 mt-6">
           <button
             onClick={onClose}
-            className="flex-1 px-4 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg font-semibold transition-colors"
+            className="flex-1 px-4 py-3 bg-gray-600 hover:bg-gray-500 rounded-lg font-semibold transition-colors"
           >
             Cancel
           </button>
