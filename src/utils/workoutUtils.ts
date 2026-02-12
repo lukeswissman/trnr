@@ -165,6 +165,29 @@ export function calculateCurrentStep(
   return null;
 }
 
+export interface SegmentBoundary {
+  index: number;
+  segment: Segment;
+  startTime: number;
+  endTime: number;
+}
+
+export function getTopLevelSegmentBoundaries(segments: Segment[]): SegmentBoundary[] {
+  const boundaries: SegmentBoundary[] = [];
+  let currentTime = 0;
+  for (let i = 0; i < segments.length; i++) {
+    const duration = calculateTotalDuration([segments[i]]);
+    boundaries.push({
+      index: i,
+      segment: segments[i],
+      startTime: currentTime,
+      endTime: currentTime + duration,
+    });
+    currentTime += duration;
+  }
+  return boundaries;
+}
+
 /**
  * Format duration in seconds to mm:ss string
  */

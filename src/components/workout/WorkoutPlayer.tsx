@@ -1,14 +1,17 @@
+import { useMemo } from 'react';
 import { useWorkout } from '../../hooks/useWorkout';
 import { useSettings } from '../../hooks/useSettings';
 import { useBluetooth } from '../../hooks/useBluetooth';
 import { useRecorder } from '../../hooks/useRecorder';
 import { exportRecording, exportAndUploadToStrava } from '../../services/export';
+import { getTopLevelSegmentBoundaries } from '../../utils/workoutUtils';
 import { MetricDisplay } from '../MetricDisplay';
 import { TargetDisplay } from './TargetDisplay';
 import { WorkoutProgress } from './WorkoutProgress';
 import { PlayerControls } from './PlayerControls';
 import { WorkoutChart } from './WorkoutChart';
 import { WorkoutSummary } from './WorkoutSummary';
+import type { Workout } from '../../types/workout';
 
 interface WorkoutPlayerProps {
   onClose?: () => void;
@@ -39,6 +42,44 @@ export function WorkoutPlayer({ onClose }: WorkoutPlayerProps) {
   });
 
   const showSummary = executionStatus === 'completed' && recording != null;
+
+  const segmentBoundaries = useMemo(() => {
+    if (!activeWorkout) return [];
+    return getTopLevelSegmentBoundaries(activeWorkout.segments);
+  }, [activeWorkout]);
+
+  const currentBoundaryIndex = useMemo(() => {
+    if (segmentBoundaries.length === 0) return -1;
+    const idx = segmentBoundaries.findIndex(
+      (b) => elapsed >= b.startTime && elapsed < b.endTime
+    );
+    return idx >= 0 ? idx : segmentBoundaries.length - 1;
+  }, [segmentBoundaries, elapsed]);
+
+  const segmentWorkout = useMemo((): Workout | null => {
+    if (currentBoundaryIndex < 0) return null;
+    const boundary = segmentBoundaries[currentBoundaryIndex];
+    return {
+      id: 'segment-detail',
+      name: '',
+      segments: [boundary.segment],
+      createdAt: 0,
+      updatedAt: 0,
+    };
+  }, [segmentBoundaries, currentBoundaryIndex]);
+
+  const segmentLocalElapsed =
+    currentBoundaryIndex >= 0
+      ? elapsed - segmentBoundaries[currentBoundaryIndex].startTime
+      : 0;
+
+  const segmentHeartRateData = useMemo(() => {
+    if (currentBoundaryIndex < 0 || samples.length === 0) return [];
+    const { startTime, endTime } = segmentBoundaries[currentBoundaryIndex];
+    return samples
+      .filter((s) => s.elapsed >= startTime && s.elapsed < endTime)
+      .map((s) => ({ elapsed: s.elapsed - startTime, heartRate: s.heartRate }));
+  }, [samples, segmentBoundaries, currentBoundaryIndex]);
 
   const handleStop = () => {
     if (executionStatus === 'running' || executionStatus === 'paused') {
@@ -100,6 +141,25 @@ export function WorkoutPlayer({ onClose }: WorkoutPlayerProps) {
       {/* Main display */}
       <div className="flex-1 flex flex-col items-center justify-center gap-8">
         <TargetDisplay targetPower={targetPower} actualPower={liveData.power} />
+
+        {(executionStatus === 'running' || executionStatus === 'paused') &&
+          segmentWorkout && (
+            <div className="w-full max-w-4xl px-4 mb-2">
+              <div className="text-xs text-gray-400 mb-1">
+                Segment {currentBoundaryIndex + 1} of{' '}
+                {segmentBoundaries.length}
+              </div>
+              <WorkoutChart
+                workout={segmentWorkout}
+                height={200}
+                highlightTime={segmentLocalElapsed}
+                actualPower={liveData.power}
+                ftp={settings.ftp}
+                heartRateData={segmentHeartRateData}
+                id="segment-detail"
+              />
+            </div>
+          )}
 
         <div className="w-full max-w-4xl px-4">
           <WorkoutChart
