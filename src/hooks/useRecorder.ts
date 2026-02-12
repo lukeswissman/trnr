@@ -12,6 +12,7 @@ interface UseRecorderParams {
 
 interface UseRecorderResult {
   recording: WorkoutRecording | null;
+  samples: RecordSample[];
 }
 
 /**
@@ -101,5 +102,5 @@ export function useRecorder({
     }
   }, [executionStatus, activeWorkout]);
 
-  return { recording };
+  return { recording, samples: samplesRef.current };
 }

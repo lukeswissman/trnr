@@ -31,7 +31,7 @@ export function WorkoutPlayer({ onClose }: WorkoutPlayerProps) {
   const { settings } = useSettings();
   const { liveData } = useBluetooth();
 
-  const { recording } = useRecorder({
+  const { recording, samples } = useRecorder({
     executionStatus,
     elapsed,
     liveData,
@@ -108,6 +108,7 @@ export function WorkoutPlayer({ onClose }: WorkoutPlayerProps) {
             highlightTime={elapsed}
             actualPower={liveData.power}
             ftp={settings.ftp}
+            heartRateData={samples}
           />
         </div>
 

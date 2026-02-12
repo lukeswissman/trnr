@@ -10,6 +10,7 @@ interface WorkoutChartProps {
   actualPower?: number | null;
   ftp?: number;
   id?: string;
+  heartRateData?: Array<{ elapsed: number; heartRate: number | null }>;
 }
 
 interface ChartPoint {
@@ -23,7 +24,8 @@ export function WorkoutChart({
   highlightTime = null,
   actualPower = null,
   ftp,
-  id: providedId
+  id: providedId,
+  heartRateData,
 }: WorkoutChartProps) {
   const generatedId = useId();
   const id = providedId || generatedId.replace(/:/g, '');
@@ -65,7 +67,36 @@ export function WorkoutChart({
     return { points: pts, maxPower: max, totalDuration: duration, plan: flatPlan };
   }, [workout]);
 
-  const padding = { top: 10, right: 10, bottom: 20, left: 40 };
+  // Filter HR samples with actual values
+  const hrSamples = useMemo(() => {
+    if (!heartRateData) return [];
+    return heartRateData.filter(
+      (s): s is { elapsed: number; heartRate: number } => s.heartRate != null
+    );
+  }, [heartRateData]);
+
+  const hasHrData = hrSamples.length > 0;
+
+  // HR scale bounds
+  const { hrMin, hrMax } = useMemo(() => {
+    if (!hasHrData) return { hrMin: 0, hrMax: 0 };
+    let min = Infinity;
+    let max = -Infinity;
+    for (const s of hrSamples) {
+      if (s.heartRate < min) min = s.heartRate;
+      if (s.heartRate > max) max = s.heartRate;
+    }
+    min = Math.floor(min / 10) * 10;
+    max = Math.ceil(max / 10) * 10;
+    if (max - min < 20) {
+      const mid = Math.round((min + max) / 2);
+      min = mid - 10;
+      max = mid + 10;
+    }
+    return { hrMin: min, hrMax: max };
+  }, [hrSamples, hasHrData]);
+
+  const padding = { top: 10, right: hasHrData ? 35 : 10, bottom: 20, left: 40 };
   const chartWidth = 400;
   const chartHeight = height;
   const innerWidth = chartWidth - padding.left - padding.right;
@@ -73,6 +104,8 @@ export function WorkoutChart({
 
   const xScale = (time: number) => padding.left + (time / totalDuration) * innerWidth;
   const yScale = (power: number) => padding.top + innerHeight - (power / maxPower) * innerHeight;
+  const hrYScale = (bpm: number) =>
+    padding.top + innerHeight - ((bpm - hrMin) / (hrMax - hrMin)) * innerHeight;
 
   const useZoneColors = ftp != null && ftp > 0;
 
@@ -192,6 +225,10 @@ export function WorkoutChart({
           <stop offset="0%" stopColor="#60a5fa" stopOpacity="1" />
           <stop offset="100%" stopColor="#3b82f6" stopOpacity="1" />
         </linearGradient>
+        <linearGradient id={`${id}-hr-glow`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#f87171" stopOpacity="1" />
+          <stop offset="100%" stopColor="#ef4444" stopOpacity="1" />
+        </linearGradient>
       </defs>
 
       {/* Grid lines */}
@@ -240,7 +277,26 @@ export function WorkoutChart({
         <path d={areaD} fill={`url(#${id}-gradient)`} className="transition-all duration-300" />
       )}
 
-      {/* Line */}
+      {/* HR line */}
+      {hasHrData && hrSamples.length >= 2 && (() => {
+        let hrPathD = `M ${xScale(hrSamples[0].elapsed)} ${hrYScale(hrSamples[0].heartRate)}`;
+        for (let i = 1; i < hrSamples.length; i++) {
+          hrPathD += ` L ${xScale(hrSamples[i].elapsed)} ${hrYScale(hrSamples[i].heartRate)}`;
+        }
+        return (
+          <path
+            d={hrPathD}
+            fill="none"
+            stroke={`url(#${id}-hr-glow)`}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="drop-shadow-[0_0_6px_rgba(239,68,68,0.4)]"
+          />
+        );
+      })()}
+
+      {/* Power line */}
       <path
         d={pathD}
         fill="none"
@@ -279,6 +335,25 @@ export function WorkoutChart({
         </text>
       ))}
 
+      {/* HR Y-axis labels (right side) */}
+      {hasHrData && (() => {
+        const hrMid = Math.round((hrMin + hrMax) / 2);
+        const hrTicks = [hrMin, hrMid, hrMax];
+        return hrTicks.map((tick) => (
+          <text
+            key={`hr-${tick}`}
+            x={chartWidth - padding.right + 5}
+            y={hrYScale(tick) + 3}
+            textAnchor="start"
+            fontSize="8"
+            fill="#ef4444"
+            fillOpacity="0.7"
+          >
+            {tick}
+          </text>
+        ));
+      })()}
+
       {/* Current position marker */}
       {highlightTime !== null && highlightTime >= 0 && highlightTime <= totalDuration && (
         <g>
@@ -310,6 +385,20 @@ export function WorkoutChart({
               className="animate-pulse shadow-[0_0_10px_rgba(251,191,36,0.6)]"
             />
           )}
+
+          {/* Current HR Marker */}
+          {hasHrData && hrSamples.length > 0 && (() => {
+            const lastHr = hrSamples[hrSamples.length - 1];
+            return (
+              <circle
+                cx={xScale(highlightTime)}
+                cy={hrYScale(lastHr.heartRate)}
+                r="4"
+                fill="#ef4444"
+                className="drop-shadow-[0_0_6px_rgba(239,68,68,0.5)]"
+              />
+            );
+          })()}
         </g>
       )}
     </svg>
