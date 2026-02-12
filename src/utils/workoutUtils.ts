@@ -189,6 +189,58 @@ export function getTopLevelSegmentBoundaries(segments: Segment[]): SegmentBounda
 }
 
 /**
+ * Slice a segment to a time window [fromTime, toTime) relative to the segment's start at 0.
+ * Flattens the segment into FlatSteps, clips to the window, and returns new Segments.
+ */
+export function sliceSegment(segment: Segment, fromTime: number, toTime: number): Segment[] {
+  const tempWorkout: Workout = {
+    id: 'temp',
+    name: '',
+    segments: [segment],
+    createdAt: 0,
+    updatedAt: 0,
+  };
+  const steps = flattenWorkout(tempWorkout);
+  const result: Segment[] = [];
+
+  for (const step of steps) {
+    // Skip steps fully outside the window
+    if (step.endTime <= fromTime || step.startTime >= toTime) continue;
+
+    // Clip to window
+    const clipStart = Math.max(step.startTime, fromTime);
+    const clipEnd = Math.min(step.endTime, toTime);
+    const clippedDuration = clipEnd - clipStart;
+
+    if (clippedDuration <= 0) continue;
+
+    if (step.type === 'block') {
+      result.push({
+        type: 'block',
+        id: generateId(),
+        power: step.power,
+        duration: clippedDuration,
+      });
+    } else {
+      // Ramp: interpolate power at clip boundaries
+      const startFrac = (clipStart - step.startTime) / step.duration;
+      const endFrac = (clipEnd - step.startTime) / step.duration;
+      const startPower = step.startPower! + (step.endPower! - step.startPower!) * startFrac;
+      const endPower = step.startPower! + (step.endPower! - step.startPower!) * endFrac;
+      result.push({
+        type: 'ramp',
+        id: generateId(),
+        startPower: Math.round(startPower),
+        endPower: Math.round(endPower),
+        duration: clippedDuration,
+      });
+    }
+  }
+
+  return result;
+}
+
+/**
  * Format duration in seconds to mm:ss string
  */
 export function formatDuration(seconds: number): string {

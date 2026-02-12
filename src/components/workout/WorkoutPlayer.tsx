@@ -4,7 +4,7 @@ import { useSettings } from '../../hooks/useSettings';
 import { useBluetooth } from '../../hooks/useBluetooth';
 import { useRecorder } from '../../hooks/useRecorder';
 import { exportRecording, exportAndUploadToStrava } from '../../services/export';
-import { getTopLevelSegmentBoundaries } from '../../utils/workoutUtils';
+import { getTopLevelSegmentBoundaries, sliceSegment, calculateTotalDuration } from '../../utils/workoutUtils';
 import { MetricDisplay } from '../MetricDisplay';
 import { TargetDisplay } from './TargetDisplay';
 import { WorkoutProgress } from './WorkoutProgress';
@@ -56,29 +56,76 @@ export function WorkoutPlayer({ onClose }: WorkoutPlayerProps) {
     return idx >= 0 ? idx : segmentBoundaries.length - 1;
   }, [segmentBoundaries, elapsed]);
 
-  const segmentWorkout = useMemo((): Workout | null => {
-    if (currentBoundaryIndex < 0) return null;
+  const { segmentWorkout, prevContextDuration } = useMemo((): {
+    segmentWorkout: Workout | null;
+    prevContextDuration: number;
+  } => {
+    if (currentBoundaryIndex < 0) return { segmentWorkout: null, prevContextDuration: 0 };
     const boundary = segmentBoundaries[currentBoundaryIndex];
+    const currentDuration = boundary.endTime - boundary.startTime;
+    const contextDuration = currentDuration * 0.125;
+
+    const segments: import('../../types/workout').Segment[] = [];
+    let actualPrevContext = 0;
+
+    // Previous segment tail
+    if (currentBoundaryIndex > 0) {
+      const prev = segmentBoundaries[currentBoundaryIndex - 1];
+      const prevDuration = prev.endTime - prev.startTime;
+      const tailLen = Math.min(contextDuration, prevDuration);
+      const sliced = sliceSegment(prev.segment, prevDuration - tailLen, prevDuration);
+      actualPrevContext = calculateTotalDuration(sliced);
+      segments.push(...sliced);
+    }
+
+    // Current segment (unchanged)
+    segments.push(boundary.segment);
+
+    // Next segment head
+    if (currentBoundaryIndex < segmentBoundaries.length - 1) {
+      const next = segmentBoundaries[currentBoundaryIndex + 1];
+      const nextDuration = next.endTime - next.startTime;
+      const headLen = Math.min(contextDuration, nextDuration);
+      segments.push(...sliceSegment(next.segment, 0, headLen));
+    }
+
     return {
-      id: 'segment-detail',
-      name: '',
-      segments: [boundary.segment],
-      createdAt: 0,
-      updatedAt: 0,
+      segmentWorkout: {
+        id: 'segment-detail',
+        name: '',
+        segments,
+        createdAt: 0,
+        updatedAt: 0,
+      },
+      prevContextDuration: actualPrevContext,
     };
   }, [segmentBoundaries, currentBoundaryIndex]);
 
   const segmentLocalElapsed =
     currentBoundaryIndex >= 0
-      ? elapsed - segmentBoundaries[currentBoundaryIndex].startTime
+      ? elapsed - segmentBoundaries[currentBoundaryIndex].startTime + prevContextDuration
       : 0;
 
   const segmentHeartRateData = useMemo(() => {
     if (currentBoundaryIndex < 0 || samples.length === 0) return [];
-    const { startTime, endTime } = segmentBoundaries[currentBoundaryIndex];
+    const boundary = segmentBoundaries[currentBoundaryIndex];
+    const currentDuration = boundary.endTime - boundary.startTime;
+    const contextDuration = currentDuration * 0.125;
+
+    const prev = currentBoundaryIndex > 0 ? segmentBoundaries[currentBoundaryIndex - 1] : null;
+    const next = currentBoundaryIndex < segmentBoundaries.length - 1 ? segmentBoundaries[currentBoundaryIndex + 1] : null;
+
+    const prevDuration = prev ? prev.endTime - prev.startTime : 0;
+    const prevContext = prev ? Math.min(contextDuration, prevDuration) : 0;
+    const nextDuration = next ? next.endTime - next.startTime : 0;
+    const nextContext = next ? Math.min(contextDuration, nextDuration) : 0;
+
+    const windowStart = boundary.startTime - prevContext;
+    const windowEnd = boundary.endTime + nextContext;
+
     return samples
-      .filter((s) => s.elapsed >= startTime && s.elapsed < endTime)
-      .map((s) => ({ elapsed: s.elapsed - startTime, heartRate: s.heartRate }));
+      .filter((s) => s.elapsed >= windowStart && s.elapsed < windowEnd)
+      .map((s) => ({ elapsed: s.elapsed - windowStart, heartRate: s.heartRate }));
   }, [samples, segmentBoundaries, currentBoundaryIndex]);
 
   const handleStop = () => {
