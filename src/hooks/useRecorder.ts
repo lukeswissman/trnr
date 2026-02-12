@@ -31,6 +31,7 @@ export function useRecorder({
   const lastSecondRef = useRef(-1);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [recording, setRecording] = useState<WorkoutRecording | null>(null);
+  const [samples, setSamples] = useState<RecordSample[]>([]);
 
   // Capture liveData in a ref so the interval always sees latest values
   const liveDataRef = useRef(liveData);
@@ -38,6 +39,13 @@ export function useRecorder({
 
   const elapsedRef = useRef(elapsed);
   useEffect(() => { elapsedRef.current = elapsed; }, [elapsed]);
+
+  // Sync samples ref to state at ~1Hz for consumers (e.g. chart HR overlay)
+  useEffect(() => {
+    if (executionStatus === 'running') {
+      setSamples([...samplesRef.current]);
+    }
+  }, [elapsed, executionStatus]);
 
   // Start/stop polling based on execution status
   useEffect(() => {
@@ -99,8 +107,9 @@ export function useRecorder({
       samplesRef.current = [];
       lastSecondRef.current = -1;
       setRecording(null);
+      setSamples([]);
     }
   }, [executionStatus, activeWorkout]);
 
-  return { recording, samples: samplesRef.current };
+  return { recording, samples };
 }
