@@ -193,7 +193,7 @@ interface StartWorkoutModalProps {
 
 function StartWorkoutModal({ workout, onStart, onCancel }: StartWorkoutModalProps) {
   const { hasTrainerControl } = useBluetooth();
-  const [mode, setMode] = useState<ExecutionMode>('display');
+  const [mode, setMode] = useState<ExecutionMode>(hasTrainerControl ? 'erg' : 'display');
 
   return (
     <div className="fixed inset-0 bg-black/30 flex items-center justify-center p-4 z-50">
@@ -202,20 +202,22 @@ function StartWorkoutModal({ workout, onStart, onCancel }: StartWorkoutModalProp
         <p className="text-gray-500 mb-4">{workout.name}</p>
 
         <div className="space-y-3 mb-6">
-          <label className="flex items-center gap-3 p-3 bg-gray-100 rounded-lg cursor-pointer">
-            <input
-              type="radio"
-              name="mode"
-              value="display"
-              checked={mode === 'display'}
-              onChange={() => setMode('display')}
-              className="w-4 h-4"
-            />
-            <div>
-              <div className="font-medium text-gray-900">Display Only</div>
-              <div className="text-sm text-gray-500">Show target power, no trainer control</div>
-            </div>
-          </label>
+          {import.meta.env.DEV && (
+            <label className="flex items-center gap-3 p-3 bg-gray-100 rounded-lg cursor-pointer">
+              <input
+                type="radio"
+                name="mode"
+                value="display"
+                checked={mode === 'display'}
+                onChange={() => setMode('display')}
+                className="w-4 h-4"
+              />
+              <div>
+                <div className="font-medium text-gray-900">Display Only</div>
+                <div className="text-sm text-gray-500">Show target power, no trainer control</div>
+              </div>
+            </label>
+          )}
 
           <label
             className={`flex items-center gap-3 p-3 bg-gray-100 rounded-lg ${hasTrainerControl ? 'cursor-pointer' : 'opacity-50 cursor-not-allowed'
