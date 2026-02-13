@@ -10,6 +10,7 @@ import {
   type TrainerControl,
 } from '../services/bluetooth';
 import type { LiveData } from '../types/bluetooth';
+import { DeviceSimulator } from '../services/simulator';
 
 interface DeviceEntry {
   device: BluetoothDevice;
@@ -23,9 +24,11 @@ export interface BluetoothContextValue {
   error: string | null;
   connectDevice: () => Promise<BluetoothDevice | null>;
   connectHRDevice: () => Promise<BluetoothDevice | null>;
+  connectSimulator: () => void;
   disconnect: (deviceId: string) => void;
   disconnectAll: () => void;
   hasTrainerControl: boolean;
+  simulatorConnected: boolean;
   sendTargetPower: (watts: number) => Promise<boolean>;
 }
 
@@ -51,6 +54,9 @@ export function BluetoothProvider({ children }: BluetoothProviderProps) {
   const characteristicsRef = useRef<Map<string, BluetoothRemoteGATTCharacteristic>>(new Map());
   const trainerControlRef = useRef<TrainerControl | null>(null);
   const [hasTrainerControl, setHasTrainerControl] = useState(false);
+
+  const simulatorRef = useRef<DeviceSimulator | null>(null);
+  const [simulatorConnected, setSimulatorConnected] = useState(false);
 
   const connectDevice = useCallback(async () => {
     setIsConnecting(true);
@@ -155,7 +161,26 @@ export function BluetoothProvider({ children }: BluetoothProviderProps) {
     }
   }, []);
 
+  const connectSimulator = useCallback(() => {
+    if (simulatorRef.current) return;
+    const simulator = new DeviceSimulator();
+    simulatorRef.current = simulator;
+    simulator.start((data) => {
+      setLiveData(data);
+    });
+    setSimulatorConnected(true);
+    setHasTrainerControl(true);
+  }, []);
+
   const disconnect = useCallback((deviceId: string) => {
+    if (deviceId === 'simulator') {
+      simulatorRef.current?.stop();
+      simulatorRef.current = null;
+      setSimulatorConnected(false);
+      setHasTrainerControl(false);
+      setLiveData({ power: null, speed: null, cadence: null, distance: null, heartRate: null });
+      return;
+    }
     const entry = devices.get(deviceId);
     if (entry) {
       disconnectDevice(entry.device);
@@ -178,6 +203,9 @@ export function BluetoothProvider({ children }: BluetoothProviderProps) {
     characteristicsRef.current.clear();
     trainerControlRef.current = null;
     setHasTrainerControl(false);
+    simulatorRef.current?.stop();
+    simulatorRef.current = null;
+    setSimulatorConnected(false);
     setLiveData({
       power: null,
       speed: null,
@@ -189,6 +217,10 @@ export function BluetoothProvider({ children }: BluetoothProviderProps) {
 
   // Set target power on trainer (ERG mode)
   const sendTargetPower = useCallback(async (watts: number) => {
+    if (simulatorRef.current) {
+      simulatorRef.current.setTargetPower(watts);
+      return true;
+    }
     if (trainerControlRef.current) {
       return setTargetPower(trainerControlRef.current.writeAndWait, watts);
     }
@@ -202,9 +234,11 @@ export function BluetoothProvider({ children }: BluetoothProviderProps) {
     error,
     connectDevice,
     connectHRDevice,
+    connectSimulator,
     disconnect,
     disconnectAll,
     hasTrainerControl,
+    simulatorConnected,
     sendTargetPower,
   };
 

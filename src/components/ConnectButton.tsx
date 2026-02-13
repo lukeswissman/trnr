@@ -1,7 +1,7 @@
 import { useBluetooth } from '../hooks/useBluetooth';
 
 export function ConnectButton() {
-  const { connectDevice, connectHRDevice, isConnecting, devices } = useBluetooth();
+  const { connectDevice, connectHRDevice, connectSimulator, isConnecting, devices, simulatorConnected } = useBluetooth();
   const isConnected = devices.size > 0;
 
   const spinner = (
@@ -30,6 +30,15 @@ export function ConnectButton() {
       >
         {isConnecting ? spinner : 'Connect HR'}
       </button>
+      {import.meta.env.DEV && (
+        <button
+          onClick={connectSimulator}
+          disabled={simulatorConnected}
+          className="px-6 py-3 bg-amber-600 hover:bg-amber-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors"
+        >
+          {simulatorConnected ? 'Simulator Connected' : 'Simulator'}
+        </button>
+      )}
     </div>
   );
 }
